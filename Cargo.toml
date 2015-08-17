@@ -1,0 +1,7 @@
+[package]
+name = "media-types"
+version = "0.1.0"
+authors = ["Pyfisch <pyfisch@gmail.com>"]
+
+[dependencies.charsets]
+git = "https://github.com/pyfisch/rust-charsets"
