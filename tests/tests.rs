@@ -38,8 +38,12 @@ fn test_audio_star() {
 #[test]
 fn test_any() {
     let tag: MediaType = "*/*".parse().unwrap();
-    assert_eq!(tag.type_, None);
-    assert_eq!(tag.subtype, None);
+    assert_eq!(tag, Default::default());
+}
+
+#[test]
+fn test_empty() {
+    assert_eq!("".parse::<MediaType>(), Err(Error::Invalid))
 }
 
 #[test]

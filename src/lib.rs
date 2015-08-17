@@ -1,6 +1,8 @@
 #![deny(missing_docs)]
 
-//! Media Types also known as MIME types describe the nature of data.
+//! Media Types also known as MIME types describe the nature of data they are
+//! used in email to describe the file type of attachments and in HTTP to to give
+//! the type of a resource.
 //!
 //! There are many RFCs describing media types the two most important for this crate is
 //! [RFC 2046 - Multipurpose Internet Mail Extensions (MIME) Part Two: Media Types]
