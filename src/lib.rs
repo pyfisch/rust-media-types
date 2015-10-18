@@ -12,7 +12,7 @@ extern crate charsets;
 
 use std::ascii::AsciiExt;
 use std::collections::HashMap;
-use std::error::Error as ErrorTrait;
+use std::error;
 use std::fmt::{self, Display, Formatter};
 use std::str::{FromStr, Utf8Error, from_utf8};
 use std::string::FromUtf8Error;
@@ -34,15 +34,27 @@ pub enum Error {
     Utf8Error(Utf8Error)
 }
 
-impl ErrorTrait for Error {
+impl error::Error for Error {
     fn description(&self) -> &str {
-        return "TODO"
+        match *self {
+            Error::Invalid => "given media type is invalid",
+            Error::NotFound => "given parameter not found",
+            Error::Utf8Error(_) => "decoding as UTF-8 failed",
+        }
+    }
+
+    fn cause(&self) -> Option<&error::Error> {
+        if let Error::Utf8Error(ref error) = *self {
+            Some(error)
+        } else {
+            None
+        }
     }
 }
 
 impl Display for Error {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        f.write_str(self.description())
+        f.write_str(error::Error::description(self))
     }
 }
 
@@ -117,6 +129,16 @@ impl MediaType {
     pub fn charset(&self) -> Result<Charset> {
         let charset = try!(self.parameters.get("charset").ok_or(Error::NotFound));
         Ok(try!(charset.parse()))
+    }
+
+    /// Sets the charset parameter to the given charset and returns the old value if present.
+    pub fn set_charset(&mut self, charset: Charset) -> Option<String> {
+        self.parameters.insert("charset".to_owned(), charset.to_string())
+    }
+
+    /// Sets the charset to UTF-8.
+    pub fn set_charset_utf8(&mut self) -> Option<String> {
+        self.set_charset(Charset::Utf8)
     }
 
     /// Compares the mime type portion (the media type without parameters) of two media types.

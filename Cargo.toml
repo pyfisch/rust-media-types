@@ -1,6 +1,6 @@
 [package]
 name = "media-types"
-version = "0.1.0"
+version = "0.1.1"
 authors = ["Pyfisch <pyfisch@gmail.com>"]
 description = "Media Types and utility methods."
 readme = "README.md"
@@ -10,4 +10,4 @@ license = "MIT"
 keywords = ["mime", "media", "files", "http", "media-types"]
 
 [dependencies]
-charsets = "0.1.0"
+charsets = "0.1.1"
