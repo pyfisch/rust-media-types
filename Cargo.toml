@@ -1,6 +1,6 @@
 [package]
 name = "media-types"
-version = "0.1.1"
+version = "0.1.2"
 authors = ["Pyfisch <pyfisch@gmail.com>"]
 description = "Media Types and utility methods."
 readme = "README.md"

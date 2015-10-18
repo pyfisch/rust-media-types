@@ -74,7 +74,7 @@ impl From<FromUtf8Error> for Error {
 pub type Result<T> = ::std::result::Result<T, Error>;
 
 /// A Media Type commonly used to describe the contents of a resource.
-#[derive(Debug, Default, Eq, PartialEq)]
+#[derive(Clone, Debug, Default, Eq, PartialEq)]
 pub struct MediaType {
     /// The top-level type or `None` to match all types.
     pub type_: Option<String>,
