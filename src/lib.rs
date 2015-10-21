@@ -11,6 +11,7 @@
 extern crate charsets;
 
 use std::ascii::AsciiExt;
+use std::borrow::Cow;
 use std::collections::HashMap;
 use std::error;
 use std::fmt::{self, Display, Formatter};
@@ -77,32 +78,48 @@ pub type Result<T> = ::std::result::Result<T, Error>;
 #[derive(Clone, Debug, Default, Eq, PartialEq)]
 pub struct MediaType {
     /// The top-level type or `None` to match all types.
-    pub type_: Option<String>,
+    pub type_: Option<Cow<'static, str>>,
     /// A registration tree, the standards tree uses `None`.
-    pub tree: Option<String>,
+    pub tree: Option<Cow<'static, str>>,
     /// A subtype giving describing a concrete file format.
-    pub subtype: Option<String>,
+    pub subtype: Option<Cow<'static, str>>,
     /// Some types use a suffix to refer to the base format like XML or JSON.
-    pub suffix: Option<String>,
+    pub suffix: Option<Cow<'static, str>>,
     /// Media types can contain optional parameters for example for charsets or video codes.
-    pub parameters: HashMap<String, String>
+    pub parameters: HashMap<Cow<'static, str>, Cow<'static, str>>
 }
 
-fn u<'a>(x: &'a Option<String>) -> Option<&'a str> {
+fn u<'a>(x: &'a Option<Cow<str>>) -> Option<&'a str> {
     x.as_ref().map(|x| &x[..])
 }
 
 impl MediaType {
+    /// Creates a new media type without a suffix or parameters, they can be added later.
+    pub fn new<A, B, C>(type_: Option<A>,
+                        tree: Option<B>,
+                        subtype: Option<C>) -> MediaType
+    where A: Into<Cow<'static, str>>,
+          B: Into<Cow<'static, str>>,
+          C: Into<Cow<'static, str>> {
+        Self::new_with_suffix(type_, tree, subtype, None::<&'static str>)
+    }
+
     /// Creates a new media type without parameters, they can be added later.
-    pub fn new(type_: Option<&str>,
-               tree: Option<&str>,
-               subtype: Option<&str>,
-               suffix: Option<&str>) -> MediaType {
+    // FIXME: Currently inference fails when supplying `None`s as
+    // it's not driven by default type-params.
+    pub fn new_with_suffix<A, B, C, D>(type_: Option<A>,
+                                       tree: Option<B>,
+                                       subtype: Option<C>,
+                                       suffix: Option<D>) -> MediaType
+    where A: Into<Cow<'static, str>>,
+          B: Into<Cow<'static, str>>,
+          C: Into<Cow<'static, str>>,
+          D: Into<Cow<'static, str>> {
         MediaType {
-            type_: type_.map(|x| x.to_string()),
-            tree: tree.map(|x| x.to_string()),
-            subtype: subtype.map(|x| x.to_string()),
-            suffix: suffix.map(|x| x.to_string()),
+            type_: type_.map(|x| x.into()),
+            tree: tree.map(|x| x.into()),
+            subtype: subtype.map(|x| x.into()),
+            suffix: suffix.map(|x| x.into()),
             parameters: HashMap::new()
         }
     }
@@ -132,12 +149,12 @@ impl MediaType {
     }
 
     /// Sets the charset parameter to the given charset and returns the old value if present.
-    pub fn set_charset(&mut self, charset: Charset) -> Option<String> {
-        self.parameters.insert("charset".to_owned(), charset.to_string())
+    pub fn set_charset(&mut self, charset: Charset) -> Option<Cow<'static, str>> {
+        self.parameters.insert("charset".into(), charset.to_string().into())
     }
 
     /// Sets the charset to UTF-8.
-    pub fn set_charset_utf8(&mut self) -> Option<String> {
+    pub fn set_charset_utf8(&mut self) -> Option<Cow<'static, str>> {
         self.set_charset(Charset::Utf8)
     }
 
@@ -169,7 +186,7 @@ impl MediaType {
     pub fn is_audio_or_video_type(&self) -> bool {
         u(&self.type_) == AUDIO
         || u(&self.type_) == VIDEO
-        || MediaType::new(APPLICATION, STANDARDS, Some("ogg"), None).eq_mime_portion(self)
+        || MediaType::new(APPLICATION, STANDARDS, Some("ogg")).eq_mime_portion(self)
     }
 
     /// Checks if the media type is a font type.
@@ -177,14 +194,14 @@ impl MediaType {
     /// Implements the [MIME Sniffing standard]
     /// (https://mimesniff.spec.whatwg.org/#mime-type-groups) for MIME type groups.
     pub fn is_font_type(&self) -> bool {
-        self == &MediaType::new(APPLICATION, STANDARDS, Some("font-ttf"), None)
+        self == &MediaType::new(APPLICATION, STANDARDS, Some("font-ttf"))
         || [
-            MediaType::new(APPLICATION, STANDARDS, Some("font-cff"), None),
-            MediaType::new(APPLICATION, STANDARDS, Some("font-off"), None),
-            MediaType::new(APPLICATION, STANDARDS, Some("font-sfnt"), None),
-            MediaType::new(APPLICATION, VENDOR, Some("ms-opentype"), None),
-            MediaType::new(APPLICATION, STANDARDS, Some("font-woff"), None),
-            MediaType::new(APPLICATION, VENDOR, Some("ms-fontobject"), None)
+            MediaType::new(APPLICATION, STANDARDS, Some("font-cff")),
+            MediaType::new(APPLICATION, STANDARDS, Some("font-off")),
+            MediaType::new(APPLICATION, STANDARDS, Some("font-sfnt")),
+            MediaType::new(APPLICATION, VENDOR, Some("ms-opentype")),
+            MediaType::new(APPLICATION, STANDARDS, Some("font-woff")),
+            MediaType::new(APPLICATION, VENDOR, Some("ms-fontobject"))
         ].iter().any(|x| x.eq_mime_portion(self))
     }
 
@@ -194,7 +211,7 @@ impl MediaType {
     /// (https://mimesniff.spec.whatwg.org/#mime-type-groups) for MIME type groups.
     pub fn is_zip_based_type(&self) -> bool {
         u(&self.suffix) == Some("zip")
-        || MediaType::new(APPLICATION, STANDARDS, Some("zip"), None).eq_mime_portion(self)
+        || MediaType::new(APPLICATION, STANDARDS, Some("zip")).eq_mime_portion(self)
     }
 
     /// Checks if the media type is an archive type.
@@ -202,10 +219,10 @@ impl MediaType {
     /// Implements the [MIME Sniffing standard]
     /// (https://mimesniff.spec.whatwg.org/#mime-type-groups) for MIME type groups.
     pub fn is_archive_type(&self) -> bool {
-        self == &MediaType::new(APPLICATION, STANDARDS, Some("x-rar-compressed"), None)
+        self == &MediaType::new(APPLICATION, STANDARDS, Some("x-rar-compressed"))
         || [
-            MediaType::new(APPLICATION, STANDARDS, Some("zip"), None),
-            MediaType::new(APPLICATION, STANDARDS, Some("x-gzip"), None)
+            MediaType::new(APPLICATION, STANDARDS, Some("zip")),
+            MediaType::new(APPLICATION, STANDARDS, Some("x-gzip"))
         ].iter().any(|x| x.eq_mime_portion(self))
     }
 
@@ -216,8 +233,8 @@ impl MediaType {
     pub fn is_xml_type(&self) -> bool {
         u(&self.suffix) == Some("xml")
         || [
-            MediaType::new(TEXT, STANDARDS, Some("xml"), None),
-            MediaType::new(APPLICATION, STANDARDS, Some("xml"), None)
+            MediaType::new(TEXT, STANDARDS, Some("xml")),
+            MediaType::new(APPLICATION, STANDARDS, Some("xml"))
         ].iter().any(|x| x.eq_mime_portion(self))
     }
 
@@ -227,8 +244,8 @@ impl MediaType {
     /// (https://mimesniff.spec.whatwg.org/#mime-type-groups) for MIME type groups.
     pub fn is_scriptable_mime_type(&self) -> bool {
         [
-            MediaType::new(TEXT, STANDARDS, Some("html"), None),
-            MediaType::new(APPLICATION, STANDARDS, Some("pdf"), None)
+            MediaType::new(TEXT, STANDARDS, Some("html")),
+            MediaType::new(APPLICATION, STANDARDS, Some("pdf"))
         ].iter().any(|x| x.eq_mime_portion(self))
     }
 }
@@ -246,23 +263,23 @@ impl FromStr for MediaType {
         let mime_type_portion = try!(parts.next().ok_or(Error::Invalid));
         let parameters_portion = parts.next();
         let mut parts = mime_type_portion.splitn(2, '/');
-        media_type.type_ = Some(try!(parts.next().ok_or(Error::Invalid)).to_ascii_lowercase())
+        media_type.type_ = Some(try!(parts.next().ok_or(Error::Invalid)).to_ascii_lowercase().into())
             .and_then(parse_wildcard);
         let subtype_portion = try!(parts.next().ok_or(Error::Invalid));
         let suffixed_portion = if subtype_portion.contains('.') {
             let mut parts = subtype_portion.splitn(2, '.');
-            media_type.tree = Some(parts.next().unwrap().to_ascii_lowercase());
+            media_type.tree = Some(parts.next().unwrap().to_ascii_lowercase().into());
             parts.next().unwrap()
         } else {
             subtype_portion
         };
         media_type.subtype = Some(if suffixed_portion.contains('+') {
             let mut parts = suffixed_portion.rsplitn(2, '+');
-            media_type.suffix = Some(parts.next().unwrap().to_ascii_lowercase());
+            media_type.suffix = Some(parts.next().unwrap().to_ascii_lowercase().into());
             parts.next().unwrap()
         } else {
             suffixed_portion
-        }.to_ascii_lowercase()).and_then(parse_wildcard);
+        }.to_ascii_lowercase().into()).and_then(parse_wildcard);
         if let Some(parameters_portion) = parameters_portion {
             for (key, value) in try!(parameters_portion.split(';').map(|x| {
                 let mut parts = x.splitn(2, '=');
@@ -270,7 +287,7 @@ impl FromStr for MediaType {
                 let value = try!(parts.next().map(utils::unquote_string).ok_or(Error::Invalid));
                 decode_param(key, value)
             }).collect::<Result<Vec<(&str, String)>>>()) {
-                media_type.parameters.insert(key.to_ascii_lowercase(), value);
+                media_type.parameters.insert(key.to_ascii_lowercase().into(), value.into());
             }
         }
         return Ok(media_type);
@@ -286,7 +303,7 @@ impl FromStr for MediaType {
             })
         }
 
-        fn parse_wildcard(s: String) -> Option<String> {
+        fn parse_wildcard(s: Cow<str>) -> Option<Cow<str>> {
             if s != "*" {
                 Some(s)
             } else {
@@ -306,7 +323,7 @@ impl Display for MediaType {
         if let Some(ref suffix) = self.suffix {
             try!(write!(f, "+{}", suffix));
         }
-        let mut items: Vec<(&String, &String)> = self.parameters.iter().collect();
+        let mut items: Vec<(&Cow<'static, str>, &Cow<'static, str>)> = self.parameters.iter().collect();
         items.sort_by(|&(ref first, _), &(ref second, _)| first.cmp(second));
         for (ref key, ref value) in items {
             if utils::token(&value) {
