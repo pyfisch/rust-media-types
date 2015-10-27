@@ -141,7 +141,7 @@ pub fn parse_media_type(sequence: &[u8]) -> Result<(Bytes, Bytes, HashMap<Bytes,
         let mut extra = Vec::new();
         let mut p = 0;
         'M2: loop {
-            name.append(&mut extra);
+            name.extend(extra.iter());
             loop {
                 if !(is_whitespace(sequence[s]) || sequence[s] == b'=') {
                     if p > 127 {
