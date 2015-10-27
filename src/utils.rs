@@ -1,3 +1,8 @@
+use std::ascii::AsciiExt;
+use std::collections::HashMap;
+
+use error::{Error, Result};
+
 /// `ALPHA =  %x41-5A / %x61-7A ; A-Z / a-z`
 pub fn alpha(c: char) -> bool {
     c >= 'A' && c <= 'Z' || c >= 'a' && c <= 'z'
@@ -12,18 +17,17 @@ pub fn digit(c: char) -> bool {
 /// / "+" / "-" / "." / "^" / "_" / "`" / "|" / "~"
 /// / DIGIT / ALPHA ; any VCHAR, except delimiters`
 pub fn tchar(c: char) -> bool {
-    c == '!' || c == '#' || c == '$' || c == '%' || c == '&' || c == '\''
-        || c == '*' || c == '+' || c == '-' || c == '.' || c == '^' || c == '_'
-        || c == '`' || c == '|' || c == '~' ||  digit(c) || alpha(c)
+    c == '!' || c == '#' || c == '$' || c == '%' || c == '&' || c == '\'' || c == '*' ||
+    c == '+' || c == '-' || c == '.' || c == '^' ||
+    c == '_' || c == '`' || c == '|' || c == '~' || digit(c) || alpha(c)
 }
 
 /// `bcharsnospace := DIGIT / ALPHA / "'" / "(" / ")" /
 /// "+" / "_" / "," / "-" / "." /
 /// "/" / ":" / "=" / "?"`
 pub fn bcharsnospace(c: char) -> bool {
-    digit(c) || alpha(c) || c == '\'' || c == '(' || c == ')'
-        || c == '+' || c == '_' || c == ',' || c == '-' || c == '.'
-        || c == '/' || c == ':' || c == '=' || c == '?'
+    digit(c) || alpha(c) || c == '\'' || c == '(' || c == ')' || c == '+' ||
+    c == '_' || c == ',' || c == '-' || c == '.' || c == '/' || c == ':' || c == '=' || c == '?'
 }
 
 /// `bchars := bcharsnospace / " "`
@@ -38,57 +42,174 @@ pub fn token(s: &str) -> bool {
 
 /// boundary := 0*69<bchars> bcharsnospace
 pub fn boundary(s: &str) -> bool {
-    !s.is_empty()
-        && s.len() <= 70
-        && s.chars().all(bchars)
-        && bcharsnospace(s.chars().last().unwrap())
+    !s.is_empty() && s.len() <= 70 && s.chars().all(bchars) &&
+    bcharsnospace(s.chars().last().unwrap())
 }
 
-/// Percent-decode the given bytes, and push the result to `output`.
-// Code from https://github.com/servo/rust-url/blob/b32c7cc883c72fbc6e448a6ce881b74967c23ac3/
-// src/percent_encoding.rs#L101-117
-pub fn percent_decode_to(input: &[u8], output: &mut Vec<u8>) {
-    let mut i = 0;
-    while i < input.len() {
-        let c = input[i];
-        if c == b'%' && i + 2 < input.len() {
-            if let (Some(h), Some(l)) = (from_hex(input[i + 1]), from_hex(input[i + 2])) {
-                output.push(h * 0x10 + l);
-                i += 3;
-                continue
+fn is_whitespace(c: u8) -> bool {
+    c == b' ' || c == b'\n' || c == b'\r' || c == b'\t'
+}
+
+fn is_undefined(sequence: &[u8], s: usize) -> bool {
+    sequence.len() <= s
+}
+
+pub type Bytes = Vec<u8>;
+
+pub fn parse_media_type(sequence: &[u8]) -> Result<(Bytes, Bytes, HashMap<Bytes, Bytes>)> {
+    // https://mimesniff.spec.whatwg.org/#parsing-a-mime-type
+    if sequence.is_empty() {
+        return Err(Error::Invalid);
+    }
+    let mut s: usize = 0;
+    let mut type_ = Vec::new();
+    let mut subtype = Vec::new();
+    let mut parameters = HashMap::new();
+    while is_whitespace(sequence[s]) {
+        s += 1;
+    }
+    let mut t: u8 = 0;
+    loop {
+        if t > 127 {
+            return Err(Error::Invalid);
+        }
+        if is_undefined(sequence, s) {
+            return Err(Error::Invalid);
+        }
+        if sequence[s] == b'/' {
+            break;
+        }
+        type_.push(sequence[s].to_ascii_lowercase());
+        s += 1;
+        t += 1;
+    }
+    s += 1;
+    let mut u: u8 = 0;
+    loop {
+        if u > 127 {
+            return Err(Error::Invalid);
+        }
+        if is_undefined(sequence, s) {
+            return Ok((type_, subtype, parameters));
+        }
+        if is_whitespace(sequence[s]) || sequence[s] == b';' {
+            break;
+        }
+        subtype.push(sequence[s].to_ascii_lowercase());
+        s += 1;
+        u += 1;
+    }
+    'L: loop {
+        'M: loop {
+            if is_undefined(sequence, s) || sequence[s] == b';' {
+                break 'M;
+            }
+            if is_whitespace(sequence[s]) {
+                s += 1;
+                continue;
+            }
+            if sequence[s] == b'"' {
+                s += 1;
+                'N: loop {
+                    if (is_undefined(sequence, s) || sequence[s] == b'"') && sequence[s] == b'"' {
+                        s += 1;
+                        break 'N;
+                    }
+                    if sequence[s] == b'\\' && !is_undefined(sequence, s + 1) {
+                        s += 1
+                    }
+                    s += 1;
+                }
+            } else {
+                'N2: loop {
+                    if is_undefined(sequence, s) || is_whitespace(sequence[s]) ||
+                       sequence[s] == b';' {
+                        break 'N2;
+                    }
+                    s += 1;
+                }
             }
         }
-
-        output.push(c);
-        i += 1;
-    }
-}
-
-/// Percent-decode the given bytes
-// Code from https://github.com/servo/rust-url/blob/b32c7cc883c72fbc6e448a6ce881b74967c23ac3/
-// src/percent_encoding.rs#L120-126
-#[inline]
-pub fn percent_decode(input: &[u8]) -> Vec<u8> {
-    let mut output = Vec::new();
-    percent_decode_to(input, &mut output);
-    output
-}
-
-#[inline]
-pub fn from_hex(byte: u8) -> Option<u8> {
-    match byte {
-        b'0' ... b'9' => Some(byte - b'0'),  // 0..9
-        b'A' ... b'F' => Some(byte + 10 - b'A'),  // A..F
-        b'a' ... b'f' => Some(byte + 10 - b'a'),  // a..f
-        _ => None
-    }
-}
-
-pub fn unquote_string(x: &str) -> &str {
-    let x = x.trim();
-    if x.starts_with('"') && x.ends_with('"') {
-        &x[1..x.len()-1]
-    } else {
-        x
+        if is_undefined(sequence, s) {
+            return Ok((type_, subtype, parameters));
+        }
+        s += 1;
+        while is_whitespace(sequence[s]) {
+            s += 1;
+        }
+        let mut name = Vec::new();
+        let mut extra = Vec::new();
+        let mut p = 0;
+        'M2: loop {
+            name.append(&mut extra);
+            loop {
+                if !(is_whitespace(sequence[s]) || sequence[s] == b'=') {
+                    if p > 127 {
+                        return Err(Error::Invalid);
+                    }
+                    if is_undefined(sequence, s) {
+                        if name != b"" && parameters.get(&name).is_none() {
+                            parameters.insert(name, Vec::new());
+                        }
+                        return Ok((type_, subtype, parameters));
+                    }
+                    name.push(sequence[s].to_ascii_lowercase());
+                    s += 1;
+                    p += 1;
+                } else {
+                    break;
+                }
+            }
+            loop {
+                if is_whitespace(sequence[s]) {
+                    extra.push(sequence[s]);
+                    s += 1;
+                    p += 1;
+                } else {
+                    break;
+                }
+            }
+            if sequence[s] == b'=' {
+                break 'M2;
+            }
+        }
+        s += 1;
+        loop {
+            if !is_whitespace(sequence[s]) {
+                break;
+            }
+            s += 1;
+        }
+        let mut value = Vec::new();
+        if is_undefined(sequence, s) {
+            parameters.insert(name, value);
+            return Ok((type_, subtype, parameters));
+        }
+        if sequence[s] == b'"' {
+            s += 1;
+            'M3: loop {
+                if is_undefined(sequence, s) || sequence[s] == b'"' {
+                    parameters.insert(name, value);
+                    if sequence[s] == b'"' {
+                        s += 1
+                    }
+                    break 'M3;
+                }
+                if sequence[s] == b'\\' && !is_undefined(sequence, s + 1) {
+                    s += 1;
+                }
+                value.push(sequence[s]);
+                s += 1;
+            }
+        } else {
+            'M4: loop {
+                if is_undefined(sequence, s) || is_whitespace(sequence[s]) || sequence[s] == b';' {
+                    parameters.insert(name, value);
+                    break 'M4;
+                }
+                value.push(sequence[s]);
+                s += 1;
+            }
+        }
     }
 }

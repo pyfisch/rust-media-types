@@ -11,3 +11,8 @@ keywords = ["mime", "media", "files", "http", "media-types"]
 
 [dependencies]
 charsets = "0.1.1"
+clippy = {version = "0.0.21", optional = true}
+
+[features]
+default = []
+dev = ["clippy"]
