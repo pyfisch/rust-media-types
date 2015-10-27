@@ -319,7 +319,6 @@ impl FromStr for MediaType {
     type Err = Error;
     fn from_str(s: &str) -> Result<MediaType> {
         let (raw_type, raw_subtype, raw_parameters) = try!(utils::parse_media_type(s.as_bytes()));
-        println!("{:?}, {:?}, {:?}", raw_type, raw_subtype, raw_parameters);
         let type_ = match &raw_type[..] {
             b"*" => None,
             b"text" => Some(Text),

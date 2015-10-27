@@ -8,7 +8,7 @@ use media_types::*;
 
 #[test]
 fn test_text_plain() {
-    let tag: MediaType = "text/plain".parse().unwrap();
+    let tag: MediaType = "   text/plain".parse().unwrap();
     assert_eq!(tag.type_, Some(Text));
     assert_eq!(tag.sub(), Some(&"plain".into()));
 }
@@ -104,7 +104,7 @@ fn test_rfc1341_types() {
 
 #[test]
 fn test_rfc2046_types() {
-    let tag: MediaType = "text/plain; charset=iso-8859-1".parse().unwrap();
+    let tag: MediaType = "    text/plain; charset=iso-8859-1".parse().unwrap();
     assert_eq!(tag.charset(), Ok(Charset::Iso88591));
 }
 
@@ -147,5 +147,22 @@ fn test_new() {
     MediaType::new(Image, Standards, "png");
     // a JSON-LD resource
     MediaType::new_with_suffix(Application, Standards, "ld", "json");
+}
 
+#[test]
+fn test_parse_hard() {
+    let mut tag_result: Result<MediaType> = ("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\
+    aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\
+    aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\
+    aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa").parse();
+    assert_eq!(tag_result, Err(Error::Invalid));
+    tag_result = ("aaa").parse();
+    assert_eq!(tag_result, Err(Error::Invalid));
+    tag_result = ("text/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\
+    aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\
+    aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\
+    aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa").parse();
+    assert_eq!(tag_result, Err(Error::Invalid));
+    tag_result = ("text/plain; a=b;  c = dx;foo=\"bar\"").parse();
+    assert!(tag_result.is_ok());
 }

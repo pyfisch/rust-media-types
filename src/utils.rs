@@ -70,10 +70,7 @@ pub fn parse_media_type(sequence: &[u8]) -> Result<(Bytes, Bytes, HashMap<Bytes,
     }
     let mut t: u8 = 0;
     loop {
-        if t > 127 {
-            return Err(Error::Invalid);
-        }
-        if is_undefined(sequence, s) {
+        if t > 127 || is_undefined(sequence, s) {
             return Err(Error::Invalid);
         }
         if sequence[s] == b'/' {
