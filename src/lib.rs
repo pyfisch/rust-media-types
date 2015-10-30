@@ -176,19 +176,19 @@ impl MediaType {
     }
 
     /// Accesses the sub component of the subtype containing the resource type.
-    pub fn sub(&self) -> Option<&Cow<'static, str>> {
+    pub fn sub(&self) -> Option<&str> {
         if let Some(ref subtype) = self.subtype {
-            Some(&subtype.1)
+            Some(&subtype.1[..])
         } else {
             None
         }
     }
 
     /// Accesses the suffix of the type.
-    pub fn suffix(&self) -> Option<&Cow<'static, str>> {
+    pub fn suffix(&self) -> Option<&str> {
         if let Some(ref subtype) = self.subtype {
             if let Some(ref string) = subtype.2 {
-                return Some(&string);
+                return Some(&string[..]);
             }
         }
         None
@@ -276,7 +276,7 @@ impl MediaType {
     /// Implements the [MIME Sniffing standard]
     /// (https://mimesniff.spec.whatwg.org/#mime-type-groups) for MIME type groups.
     pub fn is_zip_based_type(&self) -> bool {
-        self.suffix() == Some(&"zip".into()) ||
+        self.suffix() == Some("zip") ||
         MediaType::new(Application, Standards, "zip").eq_mime_portion(self)
     }
 
@@ -297,7 +297,7 @@ impl MediaType {
     /// Implements the [MIME Sniffing standard]
     /// (https://mimesniff.spec.whatwg.org/#mime-type-groups) for MIME type groups.
     pub fn is_xml_type(&self) -> bool {
-        self.suffix() == Some(&"xml".into()) ||
+        self.suffix() == Some("xml") ||
         [MediaType::new(Text, Standards, "xml"), MediaType::new(Application, Standards, "xml")]
             .iter()
             .any(|x| x.eq_mime_portion(self))
