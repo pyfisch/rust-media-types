@@ -22,7 +22,7 @@ extern crate charsets;
 use std::borrow::Cow;
 use std::collections::HashMap;
 use std::fmt::{self, Display, Formatter};
-use std::str::{FromStr, from_utf8};
+use std::str::FromStr;
 
 pub use charsets::Charset;
 
