@@ -7,31 +7,31 @@ use media_types::*;
 
 #[test]
 fn test_text_plain() {
-    let tag: MediaType = "text/plain".parse().unwrap();
-    assert_eq!(tag.type_, Some("text".to_owned()));
-    assert_eq!(tag.subtype, Some("plain".to_owned()));
+    let tag: MediaType = "   text/plain".parse().unwrap();
+    assert_eq!(tag.type_, Some(Text));
+    assert_eq!(tag.sub(), Some("plain"));
 }
 
 #[test]
 fn test_application_vnd_oasis_opendocument_text() {
     let tag: MediaType = "application/vnd.oasis.opendocument.text".parse().unwrap();
-    assert_eq!(tag.type_, Some("application".to_owned()));
-    assert_eq!(tag.tree, Some("vnd".to_owned()));
-    assert_eq!(tag.subtype, Some("oasis.opendocument.text".to_owned()));
+    assert_eq!(tag.type_, Some(Application));
+    assert_eq!(tag.tree(), Some(&Vendor));
+    assert_eq!(tag.sub(), Some("oasis.opendocument.text"));
 }
 
 #[test]
 fn test_image_svg_xml() {
     let tag: MediaType = "image/svg+xml".parse().unwrap();
-    assert_eq!(tag.type_, Some("image".to_owned()));
-    assert_eq!(tag.subtype, Some("svg".to_owned()));
-    assert_eq!(tag.suffix, Some("xml".to_owned()));
+    assert_eq!(tag.type_, Some(Image));
+    assert_eq!(tag.sub(), Some("svg"));
+    assert_eq!(tag.suffix(), Some("xml"));
 }
 
 #[test]
 fn test_audio_star() {
     let tag: MediaType = "audio/*".parse().unwrap();
-    assert_eq!(tag.type_, Some("audio".to_owned()));
+    assert_eq!(tag.type_, Some(Audio));
     assert_eq!(tag.subtype, None);
 }
 
@@ -50,51 +50,44 @@ fn test_empty() {
 fn test_rfc6381_types() {
     let tag: MediaType = "video/3gpp2; codecs=\"sevc, s263\"".parse().unwrap();
     let mut parameters = HashMap::new();
-    parameters.insert("codecs".to_owned(), "sevc, s263".to_owned());
+    parameters.insert("codecs".into(), "sevc, s263".into());
     assert_eq!(tag.parameters, parameters);
+
     let tag: MediaType = "audio/3gpp2; codecs=mp4a.E1".parse().unwrap();
     let mut parameters = HashMap::new();
-    parameters.insert("codecs".to_owned(), "mp4a.E1".to_owned());
+    parameters.insert("codecs".into(), "mp4a.E1".into());
     assert_eq!(tag.parameters, parameters);
 
     let tag: MediaType = "example/*; codecs=a.bb.ccc.d".parse().unwrap();
     let mut parameters = HashMap::new();
-    parameters.insert("codecs".to_owned(), "a.bb.ccc.d".to_owned());
+    parameters.insert("codecs".into(), "a.bb.ccc.d".into());
     assert_eq!(tag.parameters, parameters);
 
     let tag: MediaType = "example/*; codecs=\"a.bb.ccc.d, e.fff\"".parse().unwrap();
     let mut parameters = HashMap::new();
-    parameters.insert("codecs".to_owned(), "a.bb.ccc.d, e.fff".to_owned());
+    parameters.insert("codecs".into(), "a.bb.ccc.d, e.fff".into());
     assert_eq!(tag.parameters, parameters);
 
-    let tag: MediaType = "example/*; codecs*=''fo%2e".parse().unwrap();
-    let mut parameters = HashMap::new();
-    parameters.insert("codecs".to_owned(), "fo.".to_owned());
-    assert_eq!(tag.parameters, parameters);
-
-    let tag: MediaType = "example/*; codecs*=\"''%25%20xz, gork\"".parse().unwrap();
-    let mut parameters = HashMap::new();
-    parameters.insert("codecs".to_owned(), "% xz, gork".to_owned());
-    assert_eq!(tag.parameters, parameters);
+    "example/*; codecs*=''fo%2e".parse::<MediaType>().unwrap();
+    "example/*; codecs*=\"''%25%20xz, gork\"".parse::<MediaType>().unwrap();
 }
 
 #[test]
 fn test_rfc2231_types() {
-    let tag: MediaType = "application/x-stuff; title*=us-ascii'en-us'This is%20%2A%2A%2Afun%2A%2A%2A".parse().unwrap();
-    let mut expected: MediaType = Default::default();
-    expected.type_ = Some("application".to_owned());
-    expected.subtype = Some("x-stuff".to_owned());
-    expected.parameters.insert("title".to_owned(), "This is ***fun***".to_owned());
+    let tag: MediaType = "application/x-stuff; title*=us-ascii'en-us'Thisis%20%2A%2A%2Afun%2A%2A%2A"
+                             .parse()
+                             .unwrap();
+    let mut expected = MediaType::new(Application, Standards, "x-stuff");
+    expected.parameters.insert("title*".into(),
+                               "us-ascii'en-us'Thisis%20%2A%2A%2Afun%2A%2A%2A".into());
     assert_eq!(tag, expected);
 }
 
 #[test]
 fn test_rfc1341_types() {
     let tag: MediaType = "multipart/digest; boundary=\"---- next message ----\" ".parse().unwrap();
-    let mut expected: MediaType = Default::default();
-    expected.type_ = Some("multipart".to_owned());
-    expected.subtype = Some("digest".to_owned());
-    expected.parameters.insert("boundary".to_owned(), "---- next message ----".to_owned());
+    let mut expected = MediaType::new(Multipart, Standards, "digest");
+    expected.parameters.insert("boundary".into(), "---- next message ----".into());
     assert_eq!(tag, expected);
     assert_eq!(tag.boundary(), Ok("---- next message ----"));
 
@@ -104,7 +97,10 @@ fn test_rfc1341_types() {
     let tag: MediaType = "multipart/mixed; boundary=\"  foo\"".parse().unwrap();
     assert_eq!(tag.boundary(), Ok("  foo"));
 
-    let tag: MediaType = "multipart/mixed; boundary=awesrdtfhzujiomkomnihuzbtrcdewsasrtczubmiokinibuvztcrxeyrctzbunimnbuvzcxxrctzubinnibuvzctxrxrtczvubinbuvzctxxrcvzbuhn".parse().unwrap();
+    let tag: MediaType = "multipart/mixed; boundary=awesrdtfhzujiomkomnihuzbtrcdewsasrtczubmiokinib\
+        uvztcrxeyrctzbunimnbuvzcxxrctzubinnibuvzctxrxrtczvubinbuvzctxxrcvzbuhn"
+                             .parse()
+                             .unwrap();
     assert_eq!(tag.boundary(), Err(Error::Invalid));
 
     let tag: MediaType = "multipart/mixed; boundary=\"foo\\\"bar\"".parse().unwrap();
@@ -113,24 +109,67 @@ fn test_rfc1341_types() {
 
 #[test]
 fn test_rfc2046_types() {
-    let tag: MediaType = "text/plain; charset=iso-8859-1".parse().unwrap();
+    let tag: MediaType = "    text/plain; charset=iso-8859-1".parse().unwrap();
     assert_eq!(tag.charset(), Ok(Charset::Iso88591));
 }
 
 #[test]
 fn test_format() {
-    let mut tag = MediaType::new(Some("example"), STANDARDS, Some("foobar"), None);
+    let mut tag = MediaType::new(Type::Unregistered("example".into()), Standards, "foobar");
     assert_eq!(tag.to_string(), "example/foobar");
-    tag = MediaType::new(Some("example"), Some("spam"), Some("foobar"), None);
+    tag = MediaType::new(Type::Unregistered("example".into()),
+                         Tree::Unregistered("spam".into()),
+                         "foobar");
     assert_eq!(tag.to_string(), "example/spam.foobar");
-    tag = MediaType::new(Some("example"), UNREGISTERED, Some("foobar"), None);
+    tag = MediaType::new(Type::Unregistered("example".into()), Private, "foobar");
     assert_eq!(tag.to_string(), "example/x.foobar");
-    tag = MediaType::new(Some("example"), UNREGISTERED, Some("foobar"), Some("xml"));
+    tag = MediaType::new_with_suffix(Type::Unregistered("example".into()),
+                                     Private,
+                                     "foobar",
+                                     "xml");
     assert_eq!(tag.to_string(), "example/x.foobar+xml");
-    tag.parameters.insert("charset".to_owned(), "US-ASCII".to_owned());
+    tag.parameters.insert("charset".into(), "US-ASCII".into());
     assert_eq!(tag.to_string(), "example/x.foobar+xml; charset=US-ASCII");
-    tag.parameters.insert("boundary".to_owned(), "foo ,".to_owned());
-    assert_eq!(tag.to_string(), "example/x.foobar+xml; boundary=\"foo ,\"; charset=US-ASCII");
-    tag.parameters.insert("z".to_owned(), "1".to_owned());
-    assert_eq!(tag.to_string(), "example/x.foobar+xml; boundary=\"foo ,\"; charset=US-ASCII; z=1");
+    tag.parameters.insert("boundary".into(), "foo ,".into());
+    assert_eq!(tag.to_string(),
+               "example/x.foobar+xml; boundary=\"foo ,\"; charset=US-ASCII");
+    tag.parameters.insert("z".into(), "1".into());
+    assert_eq!(tag.to_string(),
+               "example/x.foobar+xml; boundary=\"foo ,\"; charset=US-ASCII; z=1");
+    tag = MediaType::wildcard();
+    assert_eq!(tag.to_string(), "*/*");
+    tag = MediaType::wildcard_subtype(Image);
+    assert_eq!(tag.to_string(), "image/*");
+}
+
+#[test]
+fn test_new() {
+    // any media type
+    MediaType::wildcard();
+    // any image
+    MediaType::wildcard_subtype(Image);
+    // a PNG image
+    MediaType::new(Image, Standards, "png");
+    // a JSON-LD resource
+    MediaType::new_with_suffix(Application, Standards, "ld", "json");
+}
+
+#[test]
+fn test_parse_hard() {
+    let mut tag_result: Result<MediaType> = ("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\
+    aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\
+    aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\
+    aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
+                                                .parse();
+    assert_eq!(tag_result, Err(Error::Invalid));
+    tag_result = ("aaa").parse();
+    assert_eq!(tag_result, Err(Error::Invalid));
+    tag_result = ("text/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\
+    aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\
+    aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\
+    aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
+                     .parse();
+    assert_eq!(tag_result, Err(Error::Invalid));
+    tag_result = ("text/plain; a=b;  c = dx;foo=\"bar\"").parse();
+    assert!(tag_result.is_ok());
 }
