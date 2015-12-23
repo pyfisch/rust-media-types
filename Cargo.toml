@@ -1,6 +1,6 @@
 [package]
 name = "media-types"
-version = "0.1.2"
+version = "0.2.0"
 authors = ["Pyfisch <pyfisch@gmail.com>"]
 description = "Media Types and utility methods."
 readme = "README.md"
@@ -11,7 +11,7 @@ keywords = ["mime", "media", "files", "http", "media-types"]
 
 [dependencies]
 charsets = "0.1.1"
-clippy = {version = "0.0.21", optional = true}
+clippy = {version = "0.0.33", optional = true}
 
 [features]
 default = []
