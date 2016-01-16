@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="rustdoc">
+    <meta name="description" content="API documentation for the Rust `MediaType` struct in crate `media_types`.">
+    <meta name="keywords" content="rust, rustlang, rust-lang, MediaType">
+
+    <title>media_types::MediaType - Rust</title>
+
+    <link rel="stylesheet" type="text/css" href="../main.css">
+
+    
+    
+</head>
+<body class="rustdoc">
+    <!--[if lte IE 8]>
+    <div class="warning">
+        This old browser is unsupported and will most likely display funky
+        things.
+    </div>
+    <![endif]-->
+
+    
+
+    <nav class="sidebar">
+        
+        <p class='location'><a href='index.html'>media_types</a></p><script>window.sidebarCurrent = {name: 'MediaType', ty: 'struct', relpath: ''};</script><script defer src="sidebar-items.js"></script>
+    </nav>
+
+    <nav class="sub">
+        <form class="search-form js-only">
+            <div class="search-container">
+                <input class="search-input" name="search"
+                       autocomplete="off"
+                       placeholder="Click or press ‘S’ to search, ‘?’ for more options…"
+                       type="search">
+            </div>
+        </form>
+    </nav>
+
+    <section id='main' class="content struct">
+<h1 class='fqn'><span class='in-band'>Struct <a href='index.html'>media_types</a>::<wbr><a class='struct' href=''>MediaType</a></span><span class='out-of-band'><span id='render-detail'>
+            <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
+                [<span class='inner'>&#x2212;</span>]
+            </a>
+        </span><a id='src-124' class='srclink' href='../src/media_types/lib.rs.html#38-49' title='goto source code'>[src]</a></span></h1>
+<pre class='rust struct'>pub struct MediaType {
+    pub type_: <a class='enum' href='https://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;<a class='enum' href='../media_types/enum.Type.html' title='media_types::Type'>Type</a>&gt;,
+    pub subtype: <a class='enum' href='https://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;<a href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>(<a class='enum' href='../media_types/enum.Tree.html' title='media_types::Tree'>Tree</a>, <a class='enum' href='https://doc.rust-lang.org/nightly/collections/borrow/enum.Cow.html' title='collections::borrow::Cow'>Cow</a>&lt;'static, <a href='https://doc.rust-lang.org/nightly/std/primitive.str.html'>str</a>&gt;, <a class='enum' href='https://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;<a class='enum' href='https://doc.rust-lang.org/nightly/collections/borrow/enum.Cow.html' title='collections::borrow::Cow'>Cow</a>&lt;'static, <a href='https://doc.rust-lang.org/nightly/std/primitive.str.html'>str</a>&gt;&gt;)</a>&gt;,
+    pub parameters: <a class='struct' href='https://doc.rust-lang.org/nightly/std/collections/hash/map/struct.HashMap.html' title='std::collections::hash::map::HashMap'>HashMap</a>&lt;<a class='enum' href='https://doc.rust-lang.org/nightly/collections/borrow/enum.Cow.html' title='collections::borrow::Cow'>Cow</a>&lt;'static, <a href='https://doc.rust-lang.org/nightly/std/primitive.str.html'>str</a>&gt;, <a class='enum' href='https://doc.rust-lang.org/nightly/collections/borrow/enum.Cow.html' title='collections::borrow::Cow'>Cow</a>&lt;'static, <a href='https://doc.rust-lang.org/nightly/std/primitive.str.html'>str</a>&gt;&gt;,
+}</pre><div class='docblock'><p>A Media Type commonly used to describe the contents of a resource.</p>
+</div><h2 class='fields'>Fields</h2>
+<table><tr class='stab '>
+                                  <td id='structfield.type_'><code>type_</code></td><td><div class='docblock'><p>The top-level type or <code>None</code> to match all types.</p>
+</div></td></tr><tr class='stab '>
+                                  <td id='structfield.subtype'><code>subtype</code></td><td><div class='docblock'><p>A subtype describing the concrete file format. The first element of the tuple is the
+registration tree, it describes if they are registered by a standards organization,
+a vendor, or if they are only for private use. The second tuple element is the subtype,
+it describes the resource. The last part is the suffix it tells how the file was encoded
+common values are &quot;xml&quot; and &quot;json&quot;.</p>
+</div></td></tr><tr class='stab '>
+                                  <td id='structfield.parameters'><code>parameters</code></td><td><div class='docblock'><p>Media types can contain optional parameters for example for charsets or video codes.</p>
+</div></td></tr></table><h2 id='methods'>Methods</h2><h3 class='impl'><code>impl <a class='struct' href='../media_types/struct.MediaType.html' title='media_types::MediaType'>MediaType</a></code></h3><div class='impl-items'><h4 id='method.wildcard' class='method'><code>fn <a href='#method.wildcard' class='fnname'>wildcard</a>() -&gt; <a class='struct' href='../media_types/struct.MediaType.html' title='media_types::MediaType'>MediaType</a></code></h4>
+<div class='docblock'><p>Creates the wildcard media type <code>*/*</code>.</p>
+</div><h4 id='method.wildcard_subtype' class='method'><code>fn <a href='#method.wildcard_subtype' class='fnname'>wildcard_subtype</a>(type_: <a class='enum' href='../media_types/enum.Type.html' title='media_types::Type'>Type</a>) -&gt; <a class='struct' href='../media_types/struct.MediaType.html' title='media_types::MediaType'>MediaType</a></code></h4>
+<div class='docblock'><p>Creates a media type with only a concrete type and no subtype like <code>image/*</code>.</p>
+</div><h4 id='method.new' class='method'><code>fn <a href='#method.new' class='fnname'>new</a>&lt;A&gt;(type_: <a class='enum' href='../media_types/enum.Type.html' title='media_types::Type'>Type</a>, tree: <a class='enum' href='../media_types/enum.Tree.html' title='media_types::Tree'>Tree</a>, subtype: A) -&gt; <a class='struct' href='../media_types/struct.MediaType.html' title='media_types::MediaType'>MediaType</a> <span class='where'>where A: <a class='trait' href='https://doc.rust-lang.org/nightly/core/convert/trait.Into.html' title='core::convert::Into'>Into</a>&lt;<a class='enum' href='https://doc.rust-lang.org/nightly/collections/borrow/enum.Cow.html' title='collections::borrow::Cow'>Cow</a>&lt;'static, <a href='https://doc.rust-lang.org/nightly/std/primitive.str.html'>str</a>&gt;&gt;</span></code></h4>
+<div class='docblock'><p>Creates a new media type.</p>
+</div><h4 id='method.new_with_suffix' class='method'><code>fn <a href='#method.new_with_suffix' class='fnname'>new_with_suffix</a>&lt;A, B&gt;(type_: <a class='enum' href='../media_types/enum.Type.html' title='media_types::Type'>Type</a>, tree: <a class='enum' href='../media_types/enum.Tree.html' title='media_types::Tree'>Tree</a>, subtype: A, suffix: B) -&gt; <a class='struct' href='../media_types/struct.MediaType.html' title='media_types::MediaType'>MediaType</a> <span class='where'>where A: <a class='trait' href='https://doc.rust-lang.org/nightly/core/convert/trait.Into.html' title='core::convert::Into'>Into</a>&lt;<a class='enum' href='https://doc.rust-lang.org/nightly/collections/borrow/enum.Cow.html' title='collections::borrow::Cow'>Cow</a>&lt;'static, <a href='https://doc.rust-lang.org/nightly/std/primitive.str.html'>str</a>&gt;&gt;, B: <a class='trait' href='https://doc.rust-lang.org/nightly/core/convert/trait.Into.html' title='core::convert::Into'>Into</a>&lt;<a class='enum' href='https://doc.rust-lang.org/nightly/collections/borrow/enum.Cow.html' title='collections::borrow::Cow'>Cow</a>&lt;'static, <a href='https://doc.rust-lang.org/nightly/std/primitive.str.html'>str</a>&gt;&gt;</span></code></h4>
+<div class='docblock'><p>Creates a new media type with suffix.</p>
+</div><h4 id='method.tree' class='method'><code>fn <a href='#method.tree' class='fnname'>tree</a>(&amp;self) -&gt; <a class='enum' href='https://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;&amp;<a class='enum' href='../media_types/enum.Tree.html' title='media_types::Tree'>Tree</a>&gt;</code></h4>
+<div class='docblock'><p>Accesses the tree component of the subtype.</p>
+</div><h4 id='method.sub' class='method'><code>fn <a href='#method.sub' class='fnname'>sub</a>(&amp;self) -&gt; <a class='enum' href='https://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;&amp;<a href='https://doc.rust-lang.org/nightly/std/primitive.str.html'>str</a>&gt;</code></h4>
+<div class='docblock'><p>Accesses the sub component of the subtype containing the resource type.</p>
+</div><h4 id='method.suffix' class='method'><code>fn <a href='#method.suffix' class='fnname'>suffix</a>(&amp;self) -&gt; <a class='enum' href='https://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;&amp;<a href='https://doc.rust-lang.org/nightly/std/primitive.str.html'>str</a>&gt;</code></h4>
+<div class='docblock'><p>Accesses the suffix of the type.</p>
+</div><h4 id='method.boundary' class='method'><code>fn <a href='#method.boundary' class='fnname'>boundary</a>(&amp;self) -&gt; <a class='type' href='../media_types/type.Result.html' title='media_types::Result'>Result</a>&lt;&amp;<a href='https://doc.rust-lang.org/nightly/std/primitive.str.html'>str</a>&gt;</code></h4>
+<div class='docblock'><p>The boundary parameter is used to separate different blocks of multipart resources.</p>
+
+<p>It is defined in <a href="https://tools.ietf.org/html/rfc2046#section-5.1">RFC2046 - Multipurpose Internet Mail Extensions (MIME) Part Two:
+Media Types #5.1.  Multipart Media Type</a>.</p>
+</div><h4 id='method.charset' class='method'><code>fn <a href='#method.charset' class='fnname'>charset</a>(&amp;self) -&gt; <a class='type' href='../media_types/type.Result.html' title='media_types::Result'>Result</a>&lt;<a class='enum' href='../media_types/enum.Charset.html' title='media_types::Charset'>Charset</a>&gt;</code></h4>
+<div class='docblock'><p>The charset parameter is defined for <code>text/*</code> types, it carries information about the
+charset.</p>
+
+<p>The relevant RFCs are <a href="https://tools.ietf.org/html/rfc2046#section-4.1.2">RFC2046 - Multipurpose Internet Mail Extensions (MIME) Part Two:
+Media Types #4.1.2. Charset Parameter</a>
+and <a href="https://tools.ietf.org/html/rfc6657">RFC6657 - Update to MIME regarding &quot;charset&quot; Parameter Handling in Textual Media Types</a>.</p>
+</div><h4 id='method.set_charset' class='method'><code>fn <a href='#method.set_charset' class='fnname'>set_charset</a>(&amp;mut self, charset: <a class='enum' href='../media_types/enum.Charset.html' title='media_types::Charset'>Charset</a>) -&gt; <a class='enum' href='https://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;<a class='enum' href='https://doc.rust-lang.org/nightly/collections/borrow/enum.Cow.html' title='collections::borrow::Cow'>Cow</a>&lt;'static, <a href='https://doc.rust-lang.org/nightly/std/primitive.str.html'>str</a>&gt;&gt;</code></h4>
+<div class='docblock'><p>Sets the charset parameter to the given charset and returns the old value if present.</p>
+</div><h4 id='method.set_charset_utf8' class='method'><code>fn <a href='#method.set_charset_utf8' class='fnname'>set_charset_utf8</a>(&amp;mut self) -&gt; <a class='enum' href='https://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;<a class='enum' href='https://doc.rust-lang.org/nightly/collections/borrow/enum.Cow.html' title='collections::borrow::Cow'>Cow</a>&lt;'static, <a href='https://doc.rust-lang.org/nightly/std/primitive.str.html'>str</a>&gt;&gt;</code></h4>
+<div class='docblock'><p>Sets the charset to UTF-8.</p>
+</div><h4 id='method.eq_mime_portion' class='method'><code>fn <a href='#method.eq_mime_portion' class='fnname'>eq_mime_portion</a>(&amp;self, other: &amp;<a class='struct' href='../media_types/struct.MediaType.html' title='media_types::MediaType'>MediaType</a>) -&gt; <a href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a></code></h4>
+<div class='docblock'><p>Compares the mime type portion (the media type without parameters) of two media types.</p>
+</div><h4 id='method.ne_mime_portion' class='method'><code>fn <a href='#method.ne_mime_portion' class='fnname'>ne_mime_portion</a>(&amp;self, other: &amp;<a class='struct' href='../media_types/struct.MediaType.html' title='media_types::MediaType'>MediaType</a>) -&gt; <a href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a></code></h4>
+<div class='docblock'><p>Returns true if the mime type portions differ, strict inverse of <code>eq_mime_portion()</code>.</p>
+</div><h4 id='method.is_image_type' class='method'><code>fn <a href='#method.is_image_type' class='fnname'>is_image_type</a>(&amp;self) -&gt; <a href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a></code></h4>
+<div class='docblock'><p>Checks if the media type is an image type.</p>
+
+<p>Implements the <a href="https://mimesniff.spec.whatwg.org/#mime-type-groups">MIME Sniffing standard</a> for MIME type groups.</p>
+</div><h4 id='method.is_audio_or_video_type' class='method'><code>fn <a href='#method.is_audio_or_video_type' class='fnname'>is_audio_or_video_type</a>(&amp;self) -&gt; <a href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a></code></h4>
+<div class='docblock'><p>Checks if the media type is an audio or video type.</p>
+
+<p>Implements the <a href="https://mimesniff.spec.whatwg.org/#mime-type-groups">MIME Sniffing standard</a> for MIME type groups.</p>
+</div><h4 id='method.is_font_type' class='method'><code>fn <a href='#method.is_font_type' class='fnname'>is_font_type</a>(&amp;self) -&gt; <a href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a></code></h4>
+<div class='docblock'><p>Checks if the media type is a font type.</p>
+
+<p>Implements the <a href="https://mimesniff.spec.whatwg.org/#mime-type-groups">MIME Sniffing standard</a> for MIME type groups.</p>
+</div><h4 id='method.is_zip_based_type' class='method'><code>fn <a href='#method.is_zip_based_type' class='fnname'>is_zip_based_type</a>(&amp;self) -&gt; <a href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a></code></h4>
+<div class='docblock'><p>Checks if the media type is a zip based type.</p>
+
+<p>Implements the <a href="https://mimesniff.spec.whatwg.org/#mime-type-groups">MIME Sniffing standard</a> for MIME type groups.</p>
+</div><h4 id='method.is_archive_type' class='method'><code>fn <a href='#method.is_archive_type' class='fnname'>is_archive_type</a>(&amp;self) -&gt; <a href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a></code></h4>
+<div class='docblock'><p>Checks if the media type is an archive type.</p>
+
+<p>Implements the <a href="https://mimesniff.spec.whatwg.org/#mime-type-groups">MIME Sniffing standard</a> for MIME type groups.</p>
+</div><h4 id='method.is_xml_type' class='method'><code>fn <a href='#method.is_xml_type' class='fnname'>is_xml_type</a>(&amp;self) -&gt; <a href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a></code></h4>
+<div class='docblock'><p>Checks if the media type is an XML type.</p>
+
+<p>Implements the <a href="https://mimesniff.spec.whatwg.org/#mime-type-groups">MIME Sniffing standard</a> for MIME type groups.</p>
+</div><h4 id='method.is_scriptable_mime_type' class='method'><code>fn <a href='#method.is_scriptable_mime_type' class='fnname'>is_scriptable_mime_type</a>(&amp;self) -&gt; <a href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a></code></h4>
+<div class='docblock'><p>Checks if the media type is a scriptable type, HTML or PDF.</p>
+
+<p>Implements the <a href="https://mimesniff.spec.whatwg.org/#mime-type-groups">MIME Sniffing standard</a> for MIME type groups.</p>
+</div></div><h2 id='implementations'>Trait Implementations</h2><h3 class='impl'><code>impl <a class='trait' href='https://doc.rust-lang.org/nightly/core/str/trait.FromStr.html' title='core::str::FromStr'>FromStr</a> for <a class='struct' href='../media_types/struct.MediaType.html' title='media_types::MediaType'>MediaType</a></code></h3><div class='docblock'><p>top-level type name / [ tree. ] subtype name [ +suffix ] [ ; parameters ]</p>
+</div><div class='impl-items'><h4 id='assoc_type.Err' class='type'><code>type Err = <a class='enum' href='../media_types/enum.Error.html' title='media_types::Error'>Error</a></code></h4>
+<h4 id='method.from_str' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/str/trait.FromStr.html#method.from_str' class='fnname'>from_str</a>(s: &amp;<a href='https://doc.rust-lang.org/nightly/std/primitive.str.html'>str</a>) -&gt; <a class='type' href='../media_types/type.Result.html' title='media_types::Result'>Result</a>&lt;<a class='struct' href='../media_types/struct.MediaType.html' title='media_types::MediaType'>MediaType</a>&gt;</code></h4>
+</div><h3 class='impl'><code>impl <a class='trait' href='https://doc.rust-lang.org/nightly/core/fmt/trait.Display.html' title='core::fmt::Display'>Display</a> for <a class='struct' href='../media_types/struct.MediaType.html' title='media_types::MediaType'>MediaType</a></code></h3><div class='impl-items'><h4 id='method.fmt' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/fmt/trait.Display.html#method.fmt' class='fnname'>fmt</a>(&amp;self, f: &amp;mut <a class='struct' href='https://doc.rust-lang.org/nightly/core/fmt/struct.Formatter.html' title='core::fmt::Formatter'>Formatter</a>) -&gt; <a class='type' href='https://doc.rust-lang.org/nightly/core/fmt/type.Result.html' title='core::fmt::Result'>Result</a></code></h4>
+</div><h3 id='derived_implementations'>Derived Implementations </h3><h3 class='impl'><code>impl <a class='trait' href='https://doc.rust-lang.org/nightly/core/cmp/trait.PartialEq.html' title='core::cmp::PartialEq'>PartialEq</a> for <a class='struct' href='../media_types/struct.MediaType.html' title='media_types::MediaType'>MediaType</a></code></h3><div class='impl-items'><h4 id='method.eq' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/cmp/trait.PartialEq.html#method.eq' class='fnname'>eq</a>(&amp;self, __arg_0: &amp;<a class='struct' href='../media_types/struct.MediaType.html' title='media_types::MediaType'>MediaType</a>) -&gt; <a href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a></code></h4>
+<h4 id='method.ne' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/cmp/trait.PartialEq.html#method.ne' class='fnname'>ne</a>(&amp;self, __arg_0: &amp;<a class='struct' href='../media_types/struct.MediaType.html' title='media_types::MediaType'>MediaType</a>) -&gt; <a href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a></code></h4>
+</div><h3 class='impl'><code>impl <a class='trait' href='https://doc.rust-lang.org/nightly/core/cmp/trait.Eq.html' title='core::cmp::Eq'>Eq</a> for <a class='struct' href='../media_types/struct.MediaType.html' title='media_types::MediaType'>MediaType</a></code></h3><div class='impl-items'></div><h3 class='impl'><code>impl <a class='trait' href='https://doc.rust-lang.org/nightly/core/default/trait.Default.html' title='core::default::Default'>Default</a> for <a class='struct' href='../media_types/struct.MediaType.html' title='media_types::MediaType'>MediaType</a></code></h3><div class='impl-items'><h4 id='method.default' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/default/trait.Default.html#method.default' class='fnname'>default</a>() -&gt; <a class='struct' href='../media_types/struct.MediaType.html' title='media_types::MediaType'>MediaType</a></code></h4>
+</div><h3 class='impl'><code>impl <a class='trait' href='https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html' title='core::fmt::Debug'>Debug</a> for <a class='struct' href='../media_types/struct.MediaType.html' title='media_types::MediaType'>MediaType</a></code></h3><div class='impl-items'><h4 id='method.fmt' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html#method.fmt' class='fnname'>fmt</a>(&amp;self, __arg_0: &amp;mut <a class='struct' href='https://doc.rust-lang.org/nightly/core/fmt/struct.Formatter.html' title='core::fmt::Formatter'>Formatter</a>) -&gt; <a class='type' href='https://doc.rust-lang.org/nightly/core/fmt/type.Result.html' title='core::fmt::Result'>Result</a></code></h4>
+</div><h3 class='impl'><code>impl <a class='trait' href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html' title='core::clone::Clone'>Clone</a> for <a class='struct' href='../media_types/struct.MediaType.html' title='media_types::MediaType'>MediaType</a></code></h3><div class='impl-items'><h4 id='method.clone' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#method.clone' class='fnname'>clone</a>(&amp;self) -&gt; <a class='struct' href='../media_types/struct.MediaType.html' title='media_types::MediaType'>MediaType</a></code></h4>
+<h4 id='method.clone_from' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#method.clone_from' class='fnname'>clone_from</a>(&amp;mut self, source: &amp;Self)</code></h4>
+</div></section>
+    <section id='search' class="content hidden"></section>
+
+    <section class="footer"></section>
+
+    <aside id="help" class="hidden">
+        <div>
+            <h1 class="hidden">Help</h1>
+
+            <div class="shortcuts">
+                <h2>Keyboard Shortcuts</h2>
+
+                <dl>
+                    <dt>?</dt>
+                    <dd>Show this help dialog</dd>
+                    <dt>S</dt>
+                    <dd>Focus the search field</dd>
+                    <dt>&larrb;</dt>
+                    <dd>Move up in search results</dd>
+                    <dt>&rarrb;</dt>
+                    <dd>Move down in search results</dd>
+                    <dt>&#9166;</dt>
+                    <dd>Go to active search result</dd>
+                </dl>
+            </div>
+
+            <div class="infos">
+                <h2>Search Tricks</h2>
+
+                <p>
+                    Prefix searches with a type followed by a colon (e.g.
+                    <code>fn:</code>) to restrict the search to a given type.
+                </p>
+
+                <p>
+                    Accepted types are: <code>fn</code>, <code>mod</code>,
+                    <code>struct</code>, <code>enum</code>,
+                    <code>trait</code>, <code>type</code>, <code>macro</code>,
+                    and <code>const</code>.
+                </p>
+
+                <p>
+                    Search functions by type signature (e.g.
+                    <code>vec -> usize</code>)
+                </p>
+            </div>
+        </div>
+    </aside>
+
+    
+
+    <script>
+        window.rootPath = "../";
+        window.currentCrate = "media_types";
+        window.playgroundUrl = "";
+    </script>
+    <script src="../jquery.js"></script>
+    <script src="../main.js"></script>
+    
+    <script async src="../search-index.js"></script>
+</body>
+</html>

@@ -1,0 +1,1 @@
+initSidebarItems({"enum":[["Error","Defines an Error type for media types."]],"type":[["Result","Result type used for this library."]]});
